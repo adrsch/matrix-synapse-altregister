@@ -25,13 +25,7 @@ class RegistrationForm(FlaskForm):
 
 @app.route('/', methods=['GET', 'POST'])
 def registration():
-    key = bytes(Random.get_random_bytes(32))
-    secrets = {'aes_key': key}
     form = RegistrationForm(request.form)
     if form.validate_on_submit():
         print("ye")
-    return render_template('register.html', secrets=secrets, form=form)
-	
-@app.route('/reg', methods = ['POST'])
-def register_user():
-   print(request.form)
+    return render_template('register.html', form=form)
