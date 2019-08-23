@@ -1,0 +1,18 @@
+<html>
+  <head> 
+    <title>UO Tech Collective</title>
+  </head>
+  <body>
+    <form name="register" method="POST" action="/">
+      {{ form.csrf_token }}
+      <ul>
+        <li>{{ form.username.label }} {{ form.username(size=20) }}</li>
+	<li>{{ form.password.label }} {{ form.password(size=20) }}</li>
+	<li>{{ form.confirm.label }} {{ form.confirm(size=20) }}</li>
+	<li>{{ form.invite.label }} {{ form.invite(size=60) }}</li>
+        <li><input type="submit" value="Go"></li>
+      </ul>
+     </form>
+</form>
+  </body>
+</html>
