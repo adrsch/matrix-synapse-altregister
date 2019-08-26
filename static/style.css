@@ -1,0 +1,66 @@
+.field {
+  font-family: 'Roboto', sans-serif;
+  font-size: 16px;
+}
+
+form.register {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: 'Roboto', sans-serif;
+  font-weight: 300;
+  font-size: 16px;
+  height: 50vh;
+}
+
+div.register {
+  margin-top: auto;
+  display: inline-block;
+}
+
+input[type=submit] {
+  margin-top: 10px;
+  font-family: 'Roboto', sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  color: white;
+  background-color: #1d4;
+}
+
+.error {
+  margin-top: 10px;
+  padding: 5px;
+  border-radius: 5px;
+  background-color: #ff4d51;
+  color: #fff;
+}
+.error div {
+  padding: 5px;
+  width: 100%;
+}
+.registration-entry {
+  display: table-row;
+  vertical-align: middle;
+}
+
+.registration-entry div {
+  padding: 5px;
+  display: table-cell;
+  position: relative;
+  vertical-align: middle;
+}
+
+div.footer {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+
+  font-family: 'Teko', sans-serif;
+  font-size: 36px;
+
+  background-color: #000;
+  color: #fff;
+}

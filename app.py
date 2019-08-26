@@ -1,7 +1,6 @@
-from Crypto import Random
 from flask import Flask, request, render_template
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, ValidationError
+from wtforms import StringField, PasswordField, ValidationError, TextAreaField
 from wtforms.validators import DataRequired, EqualTo, Length
 import secrets 
 import subprocess
@@ -11,17 +10,18 @@ import invite_manager
 
 app = Flask(__name__)
 
-app.config['SECRET_KEY'] = bytes(Random.get_random_bytes(32))
+app.config['SECRET_KEY'] = secrets.token_urlsafe(32)
 
 PATH = "invites"
 
 class RegistrationForm(FlaskForm):
+    #TODO: set length min and max for username and password. 
     username = StringField('Username', validators=[DataRequired()])
     password = PasswordField('Password', validators=[DataRequired(), EqualTo('confirm', message='Passwords must match.'), Length(min=0, max=256)])
     confirm = PasswordField('Confirm')
-    invite = StringField('Invite Code', validators=[DataRequired()])
+    invite = TextAreaField('Invite Code', validators=[DataRequired()])
 
-#TODO: I have no idea what usernames are valid and what aren't so this is a placeholder that prevents you from making your usename rm -r /
+#TODO: I have no idea what usernames are valid and what aren't so this is a placeholder that prevents you from being too insane. if an invalid username slips past ie it's taken, the error message the user gets will be generic so it's best to catch as much as possible here.
     def validate_username(form, field):
         if not field.data.isalnum() or not field.data[0].isalpha():
             print("Username invalid!")
@@ -46,13 +46,16 @@ def register_user(username, password):
         registered = True
     return registered
 
-@app.route('/', methods=['POST'])
+@app.route('/', methods=['GET', 'POST'])
 def registration_submission():
     form = RegistrationForm(request.form)
+    registration_attempted = False
     invalid_invite = False
     registered = False
-
+    
     if form.validate_on_submit():
+        registration_attempted = True
+        print("Registration attempt:\nUsername: %s\nPassword: %s\nInvite: %s" % (form.username.data, form.password.data, form.invite.data))
         if check_invite(form.invite.data):
             print("Registering user...")        
             try:
@@ -69,10 +72,5 @@ def registration_submission():
                 invite_manager.restore_invite(form.invite.data)
         else:
             invalid_invite = True
-    print(form.errors)
-    return render_template('register.html', form=form, registration={'registered': registered, 'invalid_invite': invalid_invite}) 
+    return render_template('register.html', form=form, registration={'registered': registered, 'invalid_invite': invalid_invite, 'registration_attempted': registration_attempted}) 
 
-@app.route('/', methods=['GET'])
-def registration():
-    form = RegistrationForm(request.form)
-    return render_template('register.html', form=form)

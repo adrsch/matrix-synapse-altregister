@@ -1,29 +1,40 @@
-<html>
-  <head> 
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
     <title>UO Tech Collective</title>
+    <link href="static/style.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:700,300|Teko&display=swap" rel="stylesheet">
   </head>
   <body>
-    <form name="register" method="POST" action="/">
+    <form class="register" name="register" method="POST" action="/">
       {{ form.csrf_token }}
-      <ul>
-        <li>
-          {{ form.username.label }} {{ form.username(size=20) }} 
-          {% if form.username.errors %} <ul class="error">{% for error in form.username.errors %}<li>{{ error }}</li>{% endfor %}</ul> {% endif %}
-        </li>
-	<li>{{ form.password.label }} {{ form.password(size=20) }}</li>
-	<li>{{ form.confirm.label }} {{ form.confirm(size=20) }}</li>
-	<li>{{ form.invite.label }} {{ form.invite(size=60) }}
-          {% if not form.csrf_token.errors and not registration.registered %}
+      <div class="register">
+        <div class="registration-entry"><div>{{ form.username.label }}</div><div>{{ form.username(size=20, class="field") }}</div>
+          
+        </div>
+	<div class="registration-entry"><div>{{ form.password.label }}</div><div>{{ form.password(size=20, class="field") }}</div></div>
+	<div class="registration-entry"><div>{{ form.confirm.label }}</div><div>{{ form.confirm(size=20, class="field") }}</div></div>
+	<div class="registration-entry"><div>{{ form.invite.label }}</div><div>{{ form.invite(cols=20, class="field") }}</div>
+      </div>
+      <div>
+        <div style="display: flex; align-items: center;justify-content: center;"><input class="register" type="submit" value="Submit"></div>
+        {% if form.username.errors %}<div class="error">{% for error in form.username.errors %}<div>{{ error }}</div>{% endfor %}{% endif %}</div>
+        {% if not form.csrf_token.errors and registration.registration_attempted and not registration.registered %}
+          <div class="error">
             {% if registration.invalid_invite %} 
-              <ul class="error"><li>Invalid invite.</li></ul>
-            {% else %}
-              <ul class="error"><li>There was an error during registration. Your username may be taken or invalid. Please try again.</li></ul>
+                <div>Invalid invite.</div>
+              {% else %}
+                <div>There was an error during registration. Your username may be taken or invalid. Please try again.</div>
+              {% endif %}
             {% endif %}
-          {% endif %}
-        </li>
-        <li><input type="submit" value="Go"></li>
-      </ul>
-     </form>
-</form>
+          </div>
+        </div>
+      </table>
+    </form>
+    <div class="footer">
+      UO TECH COLLECTIVE
+    </div>
   </body>
 </html>
