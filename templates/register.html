@@ -6,10 +6,21 @@
     <form name="register" method="POST" action="/">
       {{ form.csrf_token }}
       <ul>
-        <li>{{ form.username.label }} {{ form.username(size=20) }}</li>
+        <li>
+          {{ form.username.label }} {{ form.username(size=20) }} 
+          {% if form.username.errors %} <ul class="error">{% for error in form.username.errors %}<li>{{ error }}</li>{% endfor %}</ul> {% endif %}
+        </li>
 	<li>{{ form.password.label }} {{ form.password(size=20) }}</li>
 	<li>{{ form.confirm.label }} {{ form.confirm(size=20) }}</li>
-	<li>{{ form.invite.label }} {{ form.invite(size=60) }}</li>
+	<li>{{ form.invite.label }} {{ form.invite(size=60) }}
+          {% if not form.csrf_token.errors and not registration.registered %}
+            {% if registration.invalid_invite %} 
+              <ul class="error"><li>Invalid invite.</li></ul>
+            {% else %}
+              <ul class="error"><li>There was an error during registration. Your username may be taken or invalid. Please try again.</li></ul>
+            {% endif %}
+          {% endif %}
+        </li>
         <li><input type="submit" value="Go"></li>
       </ul>
      </form>

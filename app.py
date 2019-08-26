@@ -23,7 +23,7 @@ class RegistrationForm(FlaskForm):
 
 #TODO: I have no idea what usernames are valid and what aren't so this is a placeholder that prevents you from making your usename rm -r /
     def validate_username(form, field):
-        if not field.data.isalnum():
+        if not field.data.isalnum() or not field.data[0].isalpha():
             print("Username invalid!")
             raise ValidationError("Please use an alphanumeric username not starting with a number")
 
@@ -46,22 +46,33 @@ def register_user(username, password):
         registered = True
     return registered
 
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/', methods=['POST'])
+def registration_submission():
+    form = RegistrationForm(request.form)
+    invalid_invite = False
+    registered = False
+
+    if form.validate_on_submit():
+        if check_invite(form.invite.data):
+            print("Registering user...")        
+            try:
+                registered = register_user(form.username.data, str(secrets.randbits(128))) 
+            except Exception as e:
+                print("There was an error in registration.", file=sys.stderr)
+                print(e, file=sys.stderr)
+                registered = False
+            if registered:
+                print("Removing invite from pool...")
+                invite_manager.remove_invite_from_tmp(form.invite.data)
+            else:
+                print("Restoring invite...")
+                invite_manager.restore_invite(form.invite.data)
+        else:
+            invalid_invite = True
+    print(form.errors)
+    return render_template('register.html', form=form, registration={'registered': registered, 'invalid_invite': invalid_invite}) 
+
+@app.route('/', methods=['GET'])
 def registration():
     form = RegistrationForm(request.form)
-    if form.validate_on_submit() and check_invite(form.invite.data):
-        print("Registering user...")
-        registered = False
-        try:
-            registered = register_user(form.username.data, str(secrets.randbits(128))) 
-        except Exception as e:
-            print("There was an error in registration.", file=sys.stderr)
-            print(e, file=sys.stderr)
-            registered = False
-        if registered:
-            print("Removing invite from pool...")
-            invite_manager.remove_invite_from_tmp(form.invite.data)
-        else:
-            print("Restoring invite...")
-            invite_manager.restore_invite(form.invite.data)
     return render_template('register.html', form=form)
