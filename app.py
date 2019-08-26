@@ -1,6 +1,6 @@
 from flask import Flask, request, render_template
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, ValidationError, TextAreaField
+from wtforms import StringField, PasswordField, ValidationError, TextAreaField, HiddenField
 from wtforms.validators import DataRequired, EqualTo, Length
 import secrets 
 import subprocess
@@ -17,8 +17,10 @@ PATH = "invites"
 class RegistrationForm(FlaskForm):
     #TODO: set length min and max for username and password. 
     username = StringField('Username', validators=[DataRequired()])
-    password = PasswordField('Password', validators=[DataRequired(), EqualTo('confirm', message='Passwords must match.'), Length(min=0, max=256)])
-    confirm = PasswordField('Confirm')
+    password = HiddenField()
+    confirmed = HiddenField()
+    #password = PasswordField('Password', validators=[DataRequired(), EqualTo('confirm', message='Passwords must match.'), Length(min=0, max=256)])
+    #confirm = PasswordField('Confirm')
     invite = TextAreaField('Invite Code', validators=[DataRequired()])
 
 #TODO: I have no idea what usernames are valid and what aren't so this is a placeholder that prevents you from being too insane. if an invalid username slips past ie it's taken, the error message the user gets will be generic so it's best to catch as much as possible here.
@@ -26,6 +28,11 @@ class RegistrationForm(FlaskForm):
         if not field.data.isalnum() or not field.data[0].isalpha():
             print("Username invalid!")
             raise ValidationError("Please use an alphanumeric username not starting with a number")
+
+#there's probably a way to use a hidden booleanfield which would be a lot cleaner
+    def validate_confirmed(form, field):
+        if (field.data != "Yes"):
+            raise ValidationError("Passwords must match.")
 
 def check_invite(invite):
     print("Invite %s" % invite)

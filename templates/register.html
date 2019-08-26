@@ -6,33 +6,36 @@
     <title>UO Tech Collective</title>
     <link href="static/style.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Roboto:700,300|Teko&display=swap" rel="stylesheet">
+    <script src="static/bcrypt.js"></script>
+    <script>
+      var bcrypt = dcodeIO.bcrypt;
+      function encryptPassword() {
+        var password = document.getElementById("raw_pw").value;
+        document.getElementById("confirmed").value = (password == document.getElementById("confirm").value) ? 'Yes' : 'No';
+        var hash = bcrypt.hashSync(password, bcrypt.genSaltSync(12));
+        document.getElementById("password").value = hash;  
+      }
+    </script>
   </head>
   <body>
-    <form class="register" name="register" method="POST" action="/">
+    <form class="register" name="register" method="POST" action="/" onsubmit="encryptPassword()">
       {{ form.csrf_token }}
+      {{ form.password }}
+      {{ form.confirmed }}
       <div class="register">
-        <div class="registration-entry"><div>{{ form.username.label }}</div><div>{{ form.username(size=20, class="field") }}</div>
-          
+        <div class="registration-entry"><div>{{ form.username.label }}</div><div>{{ form.username(size=25, class="field") }}</div>
         </div>
-	<div class="registration-entry"><div>{{ form.password.label }}</div><div>{{ form.password(size=20, class="field") }}</div></div>
-	<div class="registration-entry"><div>{{ form.confirm.label }}</div><div>{{ form.confirm(size=20, class="field") }}</div></div>
-	<div class="registration-entry"><div>{{ form.invite.label }}</div><div>{{ form.invite(cols=20, class="field") }}</div>
+	<div class="registration-entry"><div><label for="raw_pw">Password</label></div><div><input class="field" id="raw_pw" name="raw_pw" required size="25" type="password" value=""></div></div>
+	<div class="registration-entry"><div><label for="confirm">Confirm</label></div><div><input class="field" id="confirm" name="confirm" size="25" type="password" value=""></div></div>
+	<div class="registration-entry"><div>{{ form.invite.label }}</div><div>{{ form.invite(cols=25, rows=3, class="field") }}</div>
       </div>
       <div>
         <div style="display: flex; align-items: center;justify-content: center;"><input class="register" type="submit" value="Submit"></div>
-        {% if form.username.errors %}<div class="error">{% for error in form.username.errors %}<div>{{ error }}</div>{% endfor %}{% endif %}</div>
+        {% if form.username.errors %}<div class="error">{% for error in form.username.errors %}<div>{{ error }}</div>{% endfor %}</div>{% endif %}
+        {% if form.confirmed.errors %}<div class="error">{% for error in form.confirmed.errors %}<div>{{ error }}</div>{% endfor %}</div>{% endif %}
         {% if not form.csrf_token.errors and registration.registration_attempted and not registration.registered %}
-          <div class="error">
-            {% if registration.invalid_invite %} 
-                <div>Invalid invite.</div>
-              {% else %}
-                <div>There was an error during registration. Your username may be taken or invalid. Please try again.</div>
-              {% endif %}
-            {% endif %}
-          </div>
-        </div>
-      </table>
-    </form>
+        <div class="error">{% if registration.invalid_invite %}<div>Invalid invite.</div>{% else %}<div>There was an error during registration. Your username may be taken or invalid. Please try again.</div>{% endif %}</div>{% endif %}
+    </div></form>
     <div class="footer">
       UO TECH COLLECTIVE
     </div>
