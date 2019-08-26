@@ -19,15 +19,22 @@ class RegistrationForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired()])
     password = PasswordField('Password', validators=[DataRequired(), EqualTo('confirm', message='Passwords must match.'), Length(min=0, max=256)])
     confirm = PasswordField('Confirm')
-    invite = StringField('Invite Code')
+    invite = StringField('Invite Code', validators=[DataRequired()])
 
-    def validate_invite(form, field):
-        print(field.data)
-        if (invite_manager.validate_invite(field.data)):
-            print("Invite valid!")
-        else:
-            print("Invalid invite!")
-            raise ValidationError("Invalid invite!")
+#TODO: I have no idea what usernames are valid and what aren't so this is a placeholder that prevents you from making your usename rm -r /
+    def validate_username(form, field):
+        if not field.data.isalnum():
+            print("Username invalid!")
+            raise ValidationError("Please use an alphanumeric username not starting with a number")
+
+def check_invite(invite):
+    print("Invite %s" % invite)
+    if (invite_manager.validate_invite(invite)):
+        print("Invite valid!")
+        return True
+    else:
+        print("Invalid invite!")
+        return False
 
 def register_user(username, password):
     registered = False
@@ -42,7 +49,7 @@ def register_user(username, password):
 @app.route('/', methods=['GET', 'POST'])
 def registration():
     form = RegistrationForm(request.form)
-    if form.validate_on_submit():
+    if form.validate_on_submit() and check_invite(form.invite.data):
         print("Registering user...")
         registered = False
         try:
