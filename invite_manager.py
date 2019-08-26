@@ -100,6 +100,7 @@ def restore_invite(code):
                 restored = True
                 with open(get_invites_path(), "a+") as invites_file:
                     invites_file.write(invite)
+                print("Restored invite from temporary file into normal invite file")
             else:
                 f.write(invite)
     return restored
