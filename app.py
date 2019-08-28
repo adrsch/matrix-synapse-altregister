@@ -67,7 +67,8 @@ def registration_submission():
         registration_attempted = True
         #TODO: Before final version, delete printing the hashed pass, that's still a security flaw.
         print("Registration attempt:\nUsername: %s\nPassword: %s\nInvite: %s" % (form.username.data, form.password.data, form.invite.data))
-        if check_invite(form.invite.data):
+        invite = form.invite.data.strip()
+        if check_invite(invite):
             print("Registering user...")        
             try:
                 registered = register_user(form.username.data, form.password.data) 
@@ -77,10 +78,10 @@ def registration_submission():
                 registered = False
             if registered:
                 print("Removing invite from pool...")
-                invite_manager.remove_invite_from_tmp(form.invite.data)
+                invite_manager.remove_invite_from_tmp(invite)
             else:
                 print("Restoring invite...")
-                invite_manager.restore_invite(form.invite.data)
+                invite_manager.restore_invite(invite)
         else:
             invalid_invite = True
     return render_template('register.html', form=form, registration={'registered': registered, 'invalid_invite': invalid_invite, 'registration_attempted': registration_attempted}) 
