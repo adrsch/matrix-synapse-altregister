@@ -35,7 +35,6 @@ class RegistrationForm(FlaskForm):
             raise ValidationError("Passwords must match.")
 
 def check_invite(invite):
-    print("Invite %s" % invite)
     if (invite_manager.validate_invite(invite)):
         print("Invite valid!")
         return True
@@ -45,6 +44,7 @@ def check_invite(invite):
 
 def register_user(username, password):
     registered = False
+    #register_subprocess = subprocess.Popen(["sh", "./register_user.sh", username, str(secrets.randbits(128))])
     register_subprocess = subprocess.Popen(["sh", "./register_user.sh", username, password])
     register_streamdata = register_subprocess.communicate()[0]
     register_returncode = register_subprocess.returncode
@@ -62,11 +62,12 @@ def registration_submission():
     
     if form.validate_on_submit():
         registration_attempted = True
+        #TODO: Before final version, delete printing the hashed pass, that's still a security flaw.
         print("Registration attempt:\nUsername: %s\nPassword: %s\nInvite: %s" % (form.username.data, form.password.data, form.invite.data))
         if check_invite(form.invite.data):
             print("Registering user...")        
             try:
-                registered = register_user(form.username.data, str(secrets.randbits(128))) 
+                registered = register_user(form.username.data, form.password.data) 
             except Exception as e:
                 print("There was an error in registration.", file=sys.stderr)
                 print(e, file=sys.stderr)

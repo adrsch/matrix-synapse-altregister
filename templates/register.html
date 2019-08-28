@@ -9,16 +9,15 @@
     <script src="static/bcrypt.js"></script>
     <script>
       var bcrypt = dcodeIO.bcrypt;
-      function encryptPassword() {
-        var password = document.getElementById("raw_pw").value;
-        document.getElementById("confirmed").value = (password == document.getElementById("confirm").value) ? 'Yes' : 'No';
-        var hash = bcrypt.hashSync(password, bcrypt.genSaltSync(12));
+      function hashPassword() {
+        document.getElementById("confirmed").value = (document.getElementById("raw_pw").value == document.getElementById("confirm").value) ? 'Yes' : 'No';
+        var hash = bcrypt.hashSync(document.getElementById("raw_pw").value, bcrypt.genSaltSync(12));
         document.getElementById("password").value = hash;  
       }
     </script>
   </head>
   <body>
-    <form class="register" name="register" method="POST" action="/" onsubmit="encryptPassword()">
+    <form class="register" name="register" method="POST" action="/" onsubmit="hashPassword()">
       {{ form.csrf_token }}
       {{ form.password }}
       {{ form.confirmed }}
