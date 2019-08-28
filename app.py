@@ -5,6 +5,7 @@ from wtforms.validators import DataRequired, EqualTo, Length
 import secrets 
 import subprocess
 import sys
+import re
 
 import invite_manager
 
@@ -26,10 +27,11 @@ class RegistrationForm(FlaskForm):
             print("Username invalid!")
             raise ValidationError("Please use an alphanumeric username not starting with a number")
 
-#there's probably a way to use a hidden booleanfield which would be a lot cleaner
-    def validate_confirmed(form, field):
-        if (field.data != "Yes"):
-            raise ValidationError("Passwords must match.")
+#a quick and bad way of trying to stop attacks, needs work
+    def validate_password(form, field):
+        if (not re.compile(r"\$2a\$12\$[0-9a-zA-Z./]+$").match(field.data)):
+            print("Password %s not a valid hash!" % field.data)
+            raise ValidationError("Invalid password.")
 
 def check_invite(invite):
     if (invite_manager.validate_invite(invite)):
