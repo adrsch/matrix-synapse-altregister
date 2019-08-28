@@ -18,12 +18,9 @@ class RegistrationForm(FlaskForm):
     #TODO: set length min and max for username and password. 
     username = StringField('Username', validators=[DataRequired()])
     password = HiddenField()
-    confirmed = HiddenField()
-    #password = PasswordField('Password', validators=[DataRequired(), EqualTo('confirm', message='Passwords must match.'), Length(min=0, max=256)])
-    #confirm = PasswordField('Confirm')
     invite = TextAreaField('Invite Code', validators=[DataRequired()])
 
-#TODO: I have no idea what usernames are valid and what aren't so this is a placeholder that prevents you from being too insane. if an invalid username slips past ie it's taken, the error message the user gets will be generic so it's best to catch as much as possible here.
+#TODO: I have no idea what usernames are valid and what aren't so this is a placeholder that prevents you from being too insane. Basic validation could be added clientside too which would be better but there needs to be at least a little before trying to run it as an argument in a shell script.
     def validate_username(form, field):
         if not field.data.isalnum() or not field.data[0].isalpha():
             print("Username invalid!")
@@ -65,6 +62,8 @@ def registration_submission():
     
     if form.validate_on_submit():
         registration_attempted = True
+        print(request.data);
+        print(request.form);
         #TODO: Before final version, delete printing the hashed pass, that's still a security flaw.
         print("Registration attempt:\nUsername: %s\nPassword: %s\nInvite: %s" % (form.username.data, form.password.data, form.invite.data))
         invite = form.invite.data.strip()

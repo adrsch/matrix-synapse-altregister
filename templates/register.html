@@ -9,10 +9,13 @@
     <script src="static/bcrypt.js"></script>
     <script>
       var bcrypt = dcodeIO.bcrypt;
+
+      function confirmPassword(confirm) {
+        confirm.setCustomValidity(document.getElementById('raw_pw').value == confirm.value ? '' : 'Passwords must match');
+      }
+
       function hashPassword() {
-        document.getElementById("confirmed").value = (document.getElementById("raw_pw").value == document.getElementById("confirm").value) ? 'Yes' : 'No';
-        var hash = bcrypt.hashSync(document.getElementById("raw_pw").value, bcrypt.genSaltSync(12));
-        document.getElementById("password").value = hash;  
+        document.getElementById("password").value = bcrypt.hashSync(document.getElementById("raw_pw").value, bcrypt.genSaltSync(12));
       }
     </script>
   </head>
@@ -20,18 +23,16 @@
     <form class="register" name="register" method="POST" action="/" onsubmit="hashPassword()">
       {{ form.csrf_token }}
       {{ form.password }}
-      {{ form.confirmed }}
       <div class="register">
         <div class="registration-entry"><div>{{ form.username.label }}</div><div>{{ form.username(size=25, class="field") }}</div>
         </div>
-	<div class="registration-entry"><div><label for="raw_pw">Password</label></div><div><input class="field" id="raw_pw" name="raw_pw" required size="25" type="password" value=""></div></div>
-	<div class="registration-entry"><div><label for="confirm">Confirm</label></div><div><input class="field" id="confirm" name="confirm" size="25" type="password" value=""></div></div>
+	<div class="registration-entry"><div><label for="raw_pw">Password</label></div><div><input class="field" id="raw_pw" required size="25" type="password" value=""></div></div>
+	<div class="registration-entry"><div><label for="confirm">Confirm</label></div><div><input class="field" id="confirm" size="25" type="password" value="" oninput="confirmPassword(this)"></div></div>
 	<div class="registration-entry"><div>{{ form.invite.label }}</div><div>{{ form.invite(cols=25, rows=3, class="field") }}</div>
       </div>
       <div>
         <div style="display: flex; align-items: center;justify-content: center;"><input class="register" type="submit" value="Submit"></div>
         {% if form.username.errors %}<div class="error">{% for error in form.username.errors %}<div>{{ error }}</div>{% endfor %}</div>{% endif %}
-        {% if form.confirmed.errors %}<div class="error">{% for error in form.confirmed.errors %}<div>{{ error }}</div>{% endfor %}</div>{% endif %}
         {% if not form.csrf_token.errors and registration.registration_attempted and not registration.registered %}
         <div class="error">{% if registration.invalid_invite %}<div>Invalid invite.</div>{% else %}<div>There was an error during registration. <br />Your username may be taken or invalid. Please try again.</div>{% endif %}</div>{% endif %}
     </div></form>
