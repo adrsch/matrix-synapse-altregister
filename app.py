@@ -44,13 +44,16 @@ def check_invite(invite):
 
 def register_user(username, password):
     registered = False
-    #register_subprocess = subprocess.Popen(["sh", "./register_user.sh", username, str(secrets.randbits(128))])
-    register_subprocess = subprocess.Popen(["sh", "./register_user.sh", username, password])
+    register_subprocess = subprocess.Popen(["sh", "./register_user.sh", username, str(secrets.randbits(128))])
     register_streamdata = register_subprocess.communicate()[0]
     register_returncode = register_subprocess.returncode
-    print("Registration return code: %d" % register_returncode)
     if (register_returncode == 0):
-        registered = True
+        change_password_subprocess = subprocess.Popen(["sh", "./change_password_hash.sh", username, password])
+        change_password_streamdata = change_password_subprocess.communicate()[0]
+        change_password_returncode = change_password_subprocess.returncode
+        print("Registration return code: %d\nPassword updated return code: %d" % (register_returncode, change_password_returncode))
+        if (change_password_returncode == 0):
+            registered = True
     return registered
 
 @app.route('/', methods=['GET', 'POST'])

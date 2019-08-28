@@ -33,7 +33,7 @@
         {% if form.username.errors %}<div class="error">{% for error in form.username.errors %}<div>{{ error }}</div>{% endfor %}</div>{% endif %}
         {% if form.confirmed.errors %}<div class="error">{% for error in form.confirmed.errors %}<div>{{ error }}</div>{% endfor %}</div>{% endif %}
         {% if not form.csrf_token.errors and registration.registration_attempted and not registration.registered %}
-        <div class="error">{% if registration.invalid_invite %}<div>Invalid invite.</div>{% else %}<div>There was an error during registration. Your username may be taken or invalid. Please try again.</div>{% endif %}</div>{% endif %}
+        <div class="error">{% if registration.invalid_invite %}<div>Invalid invite.</div>{% else %}<div>There was an error during registration. <br />Your username may be taken or invalid. Please try again.</div>{% endif %}</div>{% endif %}
     </div></form>
     <div class="footer">
       UO TECH COLLECTIVE
