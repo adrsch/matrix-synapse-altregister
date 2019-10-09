@@ -17,3 +17,5 @@ invites_manager.py has stuff for handling invite codes. there is a temp file cre
 generate_invites.py will make a new invite that expires as specified. seconds has been tested but days has not because thats a pretty long time.
 
 
+
+i also added the unused change password script which basically just calls the sh script. this simulates how it is called during hte actual registration process
