@@ -24,29 +24,31 @@ class DatabaseConnection {
     
     protected function queryField( string $field, string $rawQuery, array $args = null ) {
         $results = $this->query( $rawQuery, $args );
-        $entry = ( count($results) > 0 ) ? $results[0] : null; 
+        $entry = ( count( $results ) > 0 ) ? $results[0] : null; 
         return ( $entry ) ? $entry[$field] : null;
     }
 }
 
 class Homeserver extends DatabaseConnection {
-    public function __construct() {
-        parent::__construct("sqlite:/var/lib/matrix-synapse/homeserver.db");
+    private $domain;
+
+    public function __construct( string $domain, string $dbPath ) {
+        parent::__construct( sprintf( "sqlite:%s", $dbPath ) );
     }
 
     public function verifyAccount( string $username, string $password ): bool {
-	$user_id = sprintf( "@%s:homeservergoeshere.url", $username );
+	$user_id = sprintf( "@%s:%s", $username, $domain );
         $password_hash = $this->queryField(
             "password_hash",
             "SELECT password_hash FROM users WHERE name=?", 
             array( $user_id ) 
         );
-        return ( $password_hash && password_verify($password, $password_hash) );
+        return ( $password_hash && password_verify( $password, $password_hash ) );
     }
 
     public function verifyGroup( string $username, string $group ): bool {
-	    $user_id = sprintf( "@%s:homeservergoeshere.url", $username );
-        $group_id = sprintf( "+%s:homeservergoeshere.url", $group );
+	    $user_id = sprintf( "@%s:%s", $username, $domain );
+        $group_id = sprintf( "+%s:%s", $group, $domain );
         $is_admin = $this->queryField(
             "is_admin",
             "SELECT is_admin FROM group_users WHERE user_id=? AND group_id=?",
@@ -57,8 +59,8 @@ class Homeserver extends DatabaseConnection {
     }
 
     public function makeAdmin( string $username, string $group ): void {	
-        $user_id = sprintf( "@%s:homeservergoeshere.url", $username );
-        $group_id = sprintf( "+%s:homeservergoeshere.url", $group );
+        $user_id = sprintf( "@%s:%s", $username, $domain );
+        $group_id = sprintf( "+%s:%s", $group, $domain );
         $this->query(
             "UPDATE group_users SET is_admin=1 WHERE user_id=? AND group_id=?",
             array( $user_id, $group_id )
@@ -70,7 +72,7 @@ class Homeserver extends DatabaseConnection {
     }
 
     public function registerUser( string $username, string $password_hash, string $group_id ): bool {   
-        $user_id = sprintf("@%s:homeservergoeshere.url", $username);
+        $user_id = sprintf( "@%s:%s", $username, $domain );
         if ( !empty(
             $this->queryField(
                 "name",
@@ -78,7 +80,7 @@ class Homeserver extends DatabaseConnection {
                 array( $user_id )
             )
         ) ) {
-		    trigger_error("Could not create account. Username may be taken.", E_USER_WARNING);
+		    trigger_error( "Could not create account. Username may be taken.", E_USER_WARNING );
 		    return False;
 	    }
          
@@ -114,19 +116,21 @@ class Homeserver extends DatabaseConnection {
                 array( strval($next_id), $group_id, $user_id )
             );
         }
-	    catch (PDOException $e) {
-		    trigger_error("Could not add account to group. Account still made.", E_USER_WARNING);
+	    catch ( PDOException $e ) {
+		    trigger_error( "Could not add account to group. Account still made.", E_USER_WARNING );
 	    }
         return True;
     }    
 }
 
 class Invites extends DatabaseConnection {
-    private $expirationTime; //seconds, default is 2 weeks
+    private $expirationTime; //in seconds, default is 2 weeks
+    private $domain
 
-    public function __construct( $expirationTime = 604800 * 2 ) {
-        parent::__construct("sqlite:/etc/matrix-synapse-registration/invites.db");
+    public function __construct( string $domain, string $dbPath, int $expirationTime = 604800 * 2 ) {
+        parent::__construct( sprintf( "sqlite:%s", $dbPath );
         $this->expirationTime = $expirationTime;
+        $this->domain = $domain;
     }
 
     public function verifyInvite( string $invite, int $cutoff = null ): bool {
@@ -136,11 +140,11 @@ class Invites extends DatabaseConnection {
             array( $invite ) 
         );
 
-        $entry = ( count($results) > 0 ) ? $results[0] : null; 
+        $entry = ( count( $results ) > 0 ) ? $results[0] : null; 
         $creation_ts = ( $entry ) ? $entry['creation_ts'] : null;
         $expiration_ts = ( $entry ) ? $entry['expiration_ts'] : null;
 
-        if ( !($creation_ts) || !($expiration_ts) ) { return false; }
+        if ( !( $creation_ts ) || !( $expiration_ts ) ) { return false; }
         if ( $expiration_ts < time() || $creation_ts < $cutoff ) { return false; }
         return true;
     }
@@ -163,11 +167,11 @@ class Invites extends DatabaseConnection {
     }
 
     public function generateInvite( string $group ): string {
-        $group_id = sprintf("+%s:homeservergoeshere.url", $group);
+        $group_id = sprintf( "+%s:%s", $group, $domain );
         $timestamp = time();
         $expiration = $timestamp + $this->expirationTime;
         $invite = base64_encode(random_bytes(6));
-	while ( !(preg_match('/^[a-zA-Z0-9]+$/', $invite)) ) {
+	while ( !( preg_match( '/^[a-zA-Z0-9]+$/', $invite ) ) ) {
 		$invite = base64_encode(random_bytes(6));
 	}
         $this->query(
@@ -178,15 +182,22 @@ class Invites extends DatabaseConnection {
         return $invite;
     }
 }
-
+/* TODO: use this as a means of setting configs
+class Manager {
+    $homeserverDbPath;
+    $invitesDbPath;
+    $homeserverDomain;
+    $expirationTime;
+}
+ */
 function promoteUser( string $username, string $password, string $group, string $admin ): bool {
     $homeserver = new Homeserver();
-    if ( !$homeserver->verifyAccount($username, $password) ) {
+    if ( !$homeserver->verifyAccount( $username, $password ) ) {
         trigger_error( "Could not verify account. Your username or password may be incorrect.", E_USER_WARNING ); 
         return False;
 
 	}
-	if ( !$homeserver->verifyGroup($username, $group) ) {
+	if ( !$homeserver->verifyGroup( $username, $group ) ) {
         trigger_error( "Could not find group or you are not an admin of the group.", E_USER_WARNING ); 
         return False;
     }
@@ -197,11 +208,11 @@ function promoteUser( string $username, string $password, string $group, string 
 
 function generateInvite( string $username, string $password, string $group ): ?string {
     $homeserver = new Homeserver();
-    if ( !$homeserver->verifyAccount($username, $password) ) {
+    if ( !$homeserver->verifyAccount( $username, $password ) ) {
         trigger_error( "Could not verify account. Your username or password may be incorrect.", E_USER_WARNING ); 
         return null;
 	}
-	if ( !$homeserver->verifyGroup($username, $group) ) {
+	if ( !$homeserver->verifyGroup( $username, $group ) ) {
         trigger_error( "Could not find group or you are not an admin of the group.", E_USER_WARNING ); 
         return null;
     }
