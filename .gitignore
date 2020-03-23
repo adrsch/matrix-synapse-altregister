@@ -1,4 +1,9 @@
 !**/__pycache__/
-invites
-words.txt
-
+*.swp
+public/**
+include/**
+composer.phar
+vendor/**
+include
+vendor
+public

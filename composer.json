@@ -1,0 +1,15 @@
+{
+    "name": "uotc/matrix-synapse-registration",
+    "description": "site",
+    "type": "project",
+    "require": {},
+    "autoload": {
+        "files": [
+            "src/page.php",
+            "src/matrix-synapse.php"
+        ]
+    }
+
+
+    
+}
