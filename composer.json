@@ -1,11 +1,10 @@
 {
-    "name": "uotc/matrix-synapse-registration",
-    "description": "site",
+    "name": "gregister",
+    "description": "Group-centric registration system for Matrix-Synapse",
     "type": "project",
     "require": {},
     "autoload": {
         "files": [
-            "src/page.php",
             "src/matrix-synapse.php"
         ]
     }

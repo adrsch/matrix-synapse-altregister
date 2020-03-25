@@ -7,3 +7,4 @@ vendor/**
 include
 vendor
 public
+src/page.php

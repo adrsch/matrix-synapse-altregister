@@ -1,5 +1,5 @@
 <?php declare(strict_types=1);
-namespace MatrixSynapse;
+namespace GRegister;
 
 class DatabaseInterface {
     private $db;
@@ -182,7 +182,7 @@ class Invites extends DatabaseInterface {
     }
 }
 
-class Gregistrar {
+class GRegistrar {
     private $homeserver;
     private $invites;
 
