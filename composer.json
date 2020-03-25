@@ -1,6 +1,6 @@
 {
     "name": "gregister",
-    "description": "Group-centric registration system for Matrix-Synapse",
+    "description": "A group-centric invite-based registration system for Matrix-Synapse",
     "type": "project",
     "require": {},
     "autoload": {
