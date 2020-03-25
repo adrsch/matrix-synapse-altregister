@@ -1,6 +1,0 @@
-{
-  "homeserver-database": "/var/lib/matrix-synapse/homeserver.db",
-  "homeserver-domain": "myhomeserver.mytld",
-  "invites-database": "/var/lib/matrix-synapse-altregister/invites.db",
-  "expiration-time-seconds": 1209600
-}

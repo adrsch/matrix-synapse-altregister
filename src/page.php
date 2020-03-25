@@ -9,8 +9,8 @@ function handleErrors( int $errno, string $errstr, string $errfile, int $errline
     $errors[] = $errstr;
 
     // testing only
-   // printf( "%d %s %d %s\n", $errno, $errfile, $errline, $errstr );
-   // print_r( $errcontext );
+    printf( "\n%d\n %s\n %d\n %s\n", $errno, $errfile, $errline, $errstr );
+    print_r( $errcontext );
 
     return true;
 }

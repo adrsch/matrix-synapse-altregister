@@ -1,0 +1,6 @@
+{
+  "homeserverDomain": "myhomeserver.mytld",
+  "homeserverDatabase": "/var/lib/matrix-synapse/homeserver.db",
+  "invitesDatabase": "/var/lib/matrix-synapse-gregister/invites.db",
+  "expirationTimeSeconds": 1209600
+}
